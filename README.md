@@ -1,12 +1,46 @@
-# React + Vite
+# React.js Chat App 💬
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern real-time **chat application** built with **React.js** and **Tailwind CSS**.  
+It allows users to log in, send and receive messages instantly, and log out.  
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
+- 🔐 User registration & login
+- 💬 Real-time chat with WebSocket/Socket.IO
+- 👥 Multiple users chatting in different tabs
+- 🎨 Tailwind CSS-based chat UI
+- 🚪 Logout functionality
+- 📱 Fully responsive design
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠 Tech Stack
+- **Frontend:** React.js (Vite or CRA), Tailwind CSS  
+- **Backend:** Node.js, Express, Socket.IO (separate repo)  
+- **State Management:** React Hooks / Context API  
+- **Authentication:** JWT / LocalStorage  
+
+---
+
+## 📂 Project Structure
+├── .gitignore
+├── LICENSE
+├── README.md
+├── eslint.config.js
+├── index.html
+├── package-lock.json
+├── package.json
+├── public
+|    └── vite.svg
+├── src
+|   ├── App.css
+|   ├── App.jsx
+|   ├── api.js
+|   ├── index.css
+|   ├── main.jsx
+|   └── pages
+|   │   ├── Chat.jsx
+|   │   ├── Login.jsx
+|   │   └── Register.jsx
+└── vite.config.js
