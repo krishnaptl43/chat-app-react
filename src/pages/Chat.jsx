@@ -1,20 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, Outlet, useParams } from "react-router-dom";
 import io from "socket.io-client";
 import API from "../api";
 
-const socket = io("http://localhost:5000");
+export default function ChatList() {
 
-export default function Chat() {
-  const { id } = useParams(); // logged-in user id
+  const socket = io("http://localhost:5000");
   const navigate = useNavigate();
+  const { receiverId } = useParams();
   const user = JSON.parse(localStorage.getItem("user"));
-
   const [users, setUsers] = useState([]);
-  const [receiver, setReceiver] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [text, setText] = useState("");
-  const [onlineUsers, setOnlineUsers] = useState([]);
 
   // Join socket room and listen events
   useEffect(() => {
@@ -22,15 +18,13 @@ export default function Chat() {
     socket.emit("join", user._id);
 
     socket.on("privateMessage", (msg) => {
-      if (msg.sender === receiver || msg.receiver === receiver) {
+      if (msg.sender === receiverId || msg.receiver === user?._id) {
         setMessages((prev) => [...prev, msg]);
       }
     });
 
-    socket.on("onlineUsers", (users) => setOnlineUsers(users));
-
     return () => socket.off("privateMessage");
-  }, [receiver, user?._id]);
+  }, [receiverId, user?._id]);
 
   // Load all users except me
   useEffect(() => {
@@ -40,19 +34,7 @@ export default function Chat() {
   }, []);
 
   const loadMessages = async (receiverId) => {
-    setReceiver(receiverId);
-    const res = await API.get(`/messages/${user._id}/${receiverId}`);
-    setMessages(res.data);
-  };
-
-  const sendMessage = () => {
-    if (!text.trim() || !receiver) return;
-    socket.emit("privateMessage", {
-      sender: user._id,
-      receiver,
-      text,
-    });
-    setText("");
+    navigate(`/chat/${receiverId}`, { state: users })
   };
 
   const handleLogout = () => {
@@ -82,72 +64,19 @@ export default function Chat() {
             <div
               key={u._id}
               onClick={() => loadMessages(u._id)}
-              className={`p-3 cursor-pointer hover:bg-gray-100 flex justify-between items-center ${
-                receiver === u._id ? "bg-gray-200 font-semibold" : ""
-              }`}
+              className={`p-3 cursor-pointer hover:bg-gray-300 flex justify-between items-center ${receiverId === u._id ? "bg-gray-300 font-semibold" : ""
+                }`}
             >
               <span>{u.username}</span>
-              {onlineUsers.includes(u._id) && (
-                <span className="w-3 h-3 bg-green-500 rounded-full"></span>
-              )}
+              <span className="w-3 h-3 bg-green-500 rounded-full">
+                {messages.filter(item => item.sender === u._id)?.length}
+              </span>
             </div>
           ))}
         </div>
       </div>
-
-      {/* Chat Window */}
-      <div className="flex-1 flex flex-col">
-        {receiver ? (
-          <>
-            {/* Chat Header */}
-            <div className="p-4 bg-white border-b font-semibold">
-              Chat with {users.find((u) => u._id === receiver)?.username}
-            </div>
-
-            {/* Messages */}
-            <div className="flex-1 p-4 overflow-y-auto space-y-3">
-              {messages.map((m, i) => (
-                <div
-                  key={i}
-                  className={`flex ${
-                    m.sender === user._id ? "justify-end" : "justify-start"
-                  }`}
-                >
-                  <div
-                    className={`max-w-xs px-4 py-2 rounded-lg ${
-                      m.sender === user._id
-                        ? "bg-blue-500 text-white rounded-br-none"
-                        : "bg-gray-300 text-black rounded-bl-none"
-                    }`}
-                  >
-                    {m.text}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Input */}
-            <div className="p-4 bg-white border-t flex space-x-2">
-              <input
-                className="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Type a message..."
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-              />
-              <button
-                onClick={sendMessage}
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-              >
-                Send
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-500">
-            Select a user to start chatting
-          </div>
-        )}
+      <div className="w-3/4 text-gray-500">
+        <Outlet context={{ socket }} />
       </div>
     </div>
   );

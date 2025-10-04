@@ -11,7 +11,7 @@ export default function Login() {
         try {
             const res = await API.post("/user/login", { username, password });
             localStorage.setItem("user", JSON.stringify(res.data));
-            navigate("/chat/" + res.data._id);
+            navigate("/chat");
         } catch (err) {
             alert("Invalid credentials");
         }
